@@ -1,15 +1,52 @@
-# ParkIQ
+# 🚗 ParkIQ
 
-AI Smart Parking Management System built with Node.js, Express, MongoDB, React, and Vite.
+> **Intelligent Parking Management System** | AI-Powered Microservices | Full-Stack Demo
+
+**ParkIQ** is a production-ready parking management platform showcasing modern full-stack architecture with microservices, real-time booking, and payment integration.
+
+---
+
+## 🎖 Tech Stack & Badges
 
 ![Node.js](https://img.shields.io/badge/Node.js-v20%2B-339933?style=for-the-badge&logo=node.js)
+![Express](https://img.shields.io/badge/Express-Backend-90C53F?style=for-the-badge&logo=express)
+![MongoDB](https://img.shields.io/badge/MongoDB-Data-00ED64?style=for-the-badge&logo=mongodb)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-Frontend-646CFF?style=for-the-badge&logo=vite)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?style=for-the-badge&logo=stripe)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker)
+
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Production--Ready-brightgreen?style=for-the-badge)
+![Microservices](https://img.shields.io/badge/Architecture-Microservices-FF6B6B?style=for-the-badge)
 
-## Overview
+## 📋 Overview
 
-ParkIQ is a microservices-based parking platform that handles user authentication, slot management, booking, pricing, and payments. The frontend is a Vite React app and the backend is split into an API gateway plus dedicated services.
+ParkIQ is a **microservices-based parking platform** that handles user authentication, slot management, booking, pricing, and payments. The frontend is a Vite React app and the backend is split into an API gateway plus dedicated services. Designed to be scalable, maintainable, and production-ready.
+
+## System Architecture
+
+```text
+User Browser
+    |
+    v
+Frontend (React + Vite)
+    |
+    v
+API Gateway (Express)
+    |
+    +--> User Service
+    +--> Parking Service
+    +--> Booking Service
+    +--> Pricing Service
+    +--> Payment Service
+    |
+    v
+MongoDB + External Services
+```
+
+The frontend handles the UI and routing, the gateway centralizes request flow, and each service owns one business domain. This structure makes the project easier to scale, test, and extend.
 
 ## Project Structure
 
@@ -30,6 +67,27 @@ ParkIQ is a microservices-based parking platform that handles user authenticatio
 - Payment initiation, retry flow, and booking-based payment lookup
 - Receipt download for completed bookings
 - Responsive frontend with routing and API integration
+
+## Career Highlights
+
+This project demonstrates practical full-stack and backend engineering skills that are valuable for internships and developer roles:
+
+- Microservices architecture with a dedicated API gateway
+- Authentication, authorization, and protected routes
+- MongoDB data modeling and service-level separation
+- Production-style environment configuration with `.env` examples
+- Frontend deployment support for Vercel
+- Backend orchestration and local multi-service startup scripts
+- Testing coverage across services
+- Real-world features such as booking, payment, and receipts
+
+## Professional Profile
+
+- Name: Sai Sri Ram Vanama
+- Email: saisriram2796@gmail.com
+- LinkedIn: [saisriramv](https://www.linkedin.com/in/saisriramv/)
+
+If you are reviewing this repository for hiring or collaboration, the best places to start are the architecture, features, and deployment sections above.
 
 ## Tech Stack
 
@@ -170,9 +228,7 @@ Copyright © 2026 Sai Sri Ram Vanama. All rights reserved.
 
 Author: Sai Sri Ram Vanama
 
-Email: saisriram2796@gmail.com
-
-LinkedIn: saisriramv
+LinkedIn: [saisriramv](https://www.linkedin.com/in/saisriramv/)
 
 This repository is for personal and authorized use only. Do not copy, redistribute, or reuse this project or its code without permission from the author.
 
