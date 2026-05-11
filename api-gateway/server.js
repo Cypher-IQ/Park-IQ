@@ -27,15 +27,29 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     // and any localhost port for local development
-    if (!origin || /^http:\/\/localhost:\d+$/.test(origin)) {
-      callback(null, true);
-    } else {
-      const allowed = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
-      if (allowed.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+    try {
+      if (!origin || /^http:\/\/localhost:\d+$/.test(origin)) {
+        return callback(null, true);
       }
+
+      const allowed = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()) : [];
+      // Support wildcard entry
+      if (allowed.includes('*')) {
+        console.debug('[CORS] Allowing origin (wildcard):', origin);
+        return callback(null, true);
+      }
+
+      if (allowed.includes(origin)) {
+        console.debug('[CORS] Allowing origin:', origin);
+        return callback(null, true);
+      }
+
+      // Don't throw here - return false so CORS middleware responds gracefully
+      console.warn('[CORS] Rejecting origin:', origin, 'Allowed:', allowed);
+      return callback(null, false);
+    } catch (err) {
+      console.error('[CORS] Origin check error:', err);
+      return callback(null, false);
     }
   },
   credentials: true,
