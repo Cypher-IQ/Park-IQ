@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000'
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const CATEGORY_OPTIONS = [
   { value: 'payment_issue', label: 'Payment Issue', tone: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' },
@@ -110,12 +110,12 @@ export default function SupportCenter({ adminMode = false }) {
   useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io(SOCKET_URL, {
+        path: '/socket.io',
         transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         reconnectionAttempts: 5,
-        path: '/socket.io/',
       })
     }
 

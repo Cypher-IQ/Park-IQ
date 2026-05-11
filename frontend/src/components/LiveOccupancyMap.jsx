@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 import { parkingAPI } from '../services/api'
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000'
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000'
 let sharedSocket = null
 
 export default function LiveOccupancyMap() {
@@ -25,13 +25,13 @@ export default function LiveOccupancyMap() {
 
     if (!sharedSocket) {
       sharedSocket = io(SOCKET_URL, {
+        path: '/socket.io',
         transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         reconnectionAttempts: 5,
         upgrade: true,
-        path: '/socket.io/',
       })
     }
 
