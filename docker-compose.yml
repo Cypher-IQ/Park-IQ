@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: parkiq-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - parkiq-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: parkiq-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - USER_SERVICE_URL=http://user-service:3001
+      - PARKING_SERVICE_URL=http://parking-service:3002
+      - BOOKING_SERVICE_URL=http://booking-service:3003
+      - PRICING_SERVICE_URL=http://pricing-service:3004
+      - PAYMENT_SERVICE_URL=http://payment-service:3005
+    depends_on:
+      - user-service
+      - parking-service
+      - booking-service
+      - pricing-service
+      - payment-service
+    networks:
+      - parkiq-net
+
+  user-service:
+    build: ./services/user-service
+    container_name: parkiq-user
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/parkiq_users
+      - JWT_SECRET=parkiq_super_secret_jwt_key
+      - PORT=3001
+    depends_on:
+      - mongo
+    networks:
+      - parkiq-net
+
+  parking-service:
+    build: ./services/parking-service
+    container_name: parkiq-parking
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/parkiq_parking
+      - PORT=3002
+    depends_on:
+      - mongo
+    networks:
+      - parkiq-net
+
+  booking-service:
+    build: ./services/booking-service
+    container_name: parkiq-booking
+    ports:
+      - "3003:3003"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/parkiq_bookings
+      - PARKING_SERVICE_URL=http://parking-service:3002
+      - PRICING_SERVICE_URL=http://pricing-service:3004
+      - PORT=3003
+    depends_on:
+      - mongo
+      - parking-service
+    networks:
+      - parkiq-net
+
+  pricing-service:
+    build: ./services/pricing-service
+    container_name: parkiq-pricing
+    ports:
+      - "3004:3004"
+    environment:
+      - PARKING_SERVICE_URL=http://parking-service:3002
+      - BASE_PRICE=2
+      - PORT=3004
+    networks:
+      - parkiq-net
+
+  payment-service:
+    build: ./services/payment-service
+    container_name: parkiq-payment
+    ports:
+      - "3005:3005"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/parkiq_payments
+      - BOOKING_SERVICE_URL=http://booking-service:3003
+      - PORT=3005
+    depends_on:
+      - mongo
+    networks:
+      - parkiq-net
+
+volumes:
+  mongo-data:
+
+networks:
+  parkiq-net:
+    driver: bridge
