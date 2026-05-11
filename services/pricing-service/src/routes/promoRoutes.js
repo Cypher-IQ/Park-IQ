@@ -7,7 +7,7 @@ const {
   getAllPromoCodes,
   deactivatePromoCode,
 } = require('../controllers/promoController');
-const { protect, adminOnly } = require('../../../user-service/src/middleware/auth');
+const { protect, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
 
