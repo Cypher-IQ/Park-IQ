@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const Payment = require('../models/Payment');
-const { sendPaymentReceipt } = require('../../../booking-service/src/services/emailService');
+const { sendPaymentReceipt } = require('../services/emailService');
 const PDFDocument = require('pdfkit');
 
 const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL || 'http://localhost:3003';
