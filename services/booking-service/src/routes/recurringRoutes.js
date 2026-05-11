@@ -7,7 +7,7 @@ const {
   cancelRecurringBooking,
   processRecurringBooking,
 } = require('../controllers/recurringController');
-const { protect } = require('../../../user-service/src/middleware/auth');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
