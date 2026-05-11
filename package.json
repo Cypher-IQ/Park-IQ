@@ -4,25 +4,34 @@
   "description": "ParkIQ - AI Smart Parking Management System",
   "private": true,
   "scripts": {
-    "start:gateway":  "cd api-gateway && node server.js",
-    "start:user":     "cd services/user-service && node server.js",
-    "start:parking":  "cd services/parking-service && node server.js",
-    "start:booking":  "cd services/booking-service && node server.js",
-    "start:pricing":  "cd services/pricing-service && node server.js",
-    "start:payment":  "cd services/payment-service && node server.js",
-    "dev:gateway":    "cd api-gateway && npm run dev",
-    "dev:user":       "cd services/user-service && npm run dev",
-    "dev:parking":    "cd services/parking-service && npm run dev",
-    "dev:booking":    "cd services/booking-service && npm run dev",
-    "dev:pricing":    "cd services/pricing-service && npm run dev",
-    "dev:payment":    "cd services/payment-service && npm run dev",
-    "dev:frontend":   "cd frontend && npm run dev",
-    "dev:all":        "powershell -ExecutionPolicy Bypass -File .\\start-all.ps1",
-    "seed":           "cd services/parking-service && node src/data/seedSlots.js",
-    "install:all":    "npm i && cd api-gateway && npm i && cd ../services/user-service && npm i && cd ../parking-service && npm i && cd ../booking-service && npm i && cd ../pricing-service && npm i && cd ../payment-service && npm i && cd ../../frontend && npm i",
-    "test:unit":      "node services/pricing-service/tests/promoCode.test.js && node services/user-service/tests/loyaltyPoints.test.js && node services/user-service/tests/authController.test.js && node services/user-service/tests/authMiddleware.integration.test.js && node services/user-service/tests/supportController.test.js && node services/booking-service/tests/recurringBooking.test.js && node services/payment-service/tests/paymentController.test.js && node api-gateway/tests/realtimeBroadcast.integration.test.js"
+    "start:gateway": "cd api-gateway && node server.js",
+    "start:user": "cd services/user-service && node server.js",
+    "start:parking": "cd services/parking-service && node server.js",
+    "start:booking": "cd services/booking-service && node server.js",
+    "start:pricing": "cd services/pricing-service && node server.js",
+    "start:payment": "cd services/payment-service && node server.js",
+    "dev:gateway": "cd api-gateway && npm run dev",
+    "dev:user": "cd services/user-service && npm run dev",
+    "dev:parking": "cd services/parking-service && npm run dev",
+    "dev:booking": "cd services/booking-service && npm run dev",
+    "dev:pricing": "cd services/pricing-service && npm run dev",
+    "dev:payment": "cd services/payment-service && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:all": "powershell -ExecutionPolicy Bypass -File .\\start-all.ps1",
+    "seed": "cd services/parking-service && node src/data/seedSlots.js",
+    "install:all": "npm i && cd api-gateway && npm i && cd ../services/user-service && npm i && cd ../parking-service && npm i && cd ../booking-service && npm i && cd ../pricing-service && npm i && cd ../payment-service && npm i && cd ../../frontend && npm i",
+    "test:unit": "node services/pricing-service/tests/promoCode.test.js && node services/user-service/tests/loyaltyPoints.test.js && node services/user-service/tests/authController.test.js && node services/user-service/tests/authMiddleware.integration.test.js && node services/user-service/tests/supportController.test.js && node services/booking-service/tests/recurringBooking.test.js && node services/payment-service/tests/paymentController.test.js && node api-gateway/tests/realtimeBroadcast.integration.test.js"
   },
-  "keywords": ["parking", "microservices", "ai", "nodejs", "react"],
+  "keywords": [
+    "parking",
+    "microservices",
+    "ai",
+    "nodejs",
+    "react"
+  ],
   "author": "ParkIQ Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3"
+  }
 }
