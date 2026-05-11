@@ -6,8 +6,10 @@ mongoose.set('bufferCommands', false);
 mongoose.set('bufferTimeoutMS', 0);
 
 const connectDB = async () => {
-  const primaryUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/parkiq';
-  const localUri = process.env.MONGO_LOCAL_URI || 'mongodb://127.0.0.1:27017/parkiq';
+  // Support both `MONGO_URI` (preferred) and legacy `MONGODB_URI` names.
+  // Use explicit Atlas/production URI first, then local/fallback.
+  const primaryUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/parkiq';
+  const localUri = process.env.MONGO_LOCAL_URI || process.env.MONGODB_URI_LOCAL || 'mongodb://127.0.0.1:27017/parkiq';
 
   try {
     const conn = await mongoose.connect(primaryUri);
