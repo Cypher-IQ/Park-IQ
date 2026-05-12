@@ -223,22 +223,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-5 glass-card p-4">
-          <p className="text-xs text-gray-500 text-center mb-3 font-medium uppercase tracking-wide">Demo Credentials</p>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="bg-white/5 rounded-lg p-3">
-              <p className="text-cyan-400 font-semibold mb-1">User</p>
-              <p className="text-gray-400">user@demo.com</p>
-              <p className="text-gray-400">demo1234</p>
-            </div>
-            <div className="bg-white/5 rounded-lg p-3">
-              <p className="text-violet-400 font-semibold mb-1">Admin</p>
-              <p className="text-gray-400">admin@demo.com</p>
-              <p className="text-gray-400">admin1234</p>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   )
