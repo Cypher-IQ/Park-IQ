@@ -81,6 +81,7 @@ export const bookingAPI = {
   scanExit: (qrToken) => api.post('/api/bookings/exit', { qrToken }),
   cancelBooking: (id) => api.patch(`/api/bookings/${id}/cancel`),
   getReceipt: (id) => api.get(`/api/bookings/${id}/receipt`, { responseType: 'blob' }),
+  manualPay: (id) => api.patch(`/api/bookings/${id}/manual-pay`),
 }
 
 // ── Pricing ───────────────────────────────────────────────

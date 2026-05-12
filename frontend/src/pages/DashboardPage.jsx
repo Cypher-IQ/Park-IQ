@@ -16,7 +16,7 @@ const statusConfig = {
   cancelled: { label: 'Cancelled',  badge: 'badge-danger',  icon: XCircle },
 }
 
-function BookingCard({ booking, onCancel }) {
+function BookingCard({ booking, onCancel, onPay }) {
   const cfg = statusConfig[booking.status] || statusConfig.pending
   const Icon = cfg.icon
   const formatDate = (d) => d ? new Date(d).toLocaleString() : '—'
@@ -99,14 +99,24 @@ function BookingCard({ booking, onCancel }) {
           </button>
         )}
         {booking.status === 'completed' && (
-          <a
-            href={`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/bookings/${booking.bookingId}/receipt`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-violet-400 hover:text-violet-300 transition-colors ml-auto"
-          >
-            Download Receipt
-          </a>
+          <>
+            {booking.paymentStatus !== 'paid' && (
+              <button
+                onClick={() => onPay(booking.bookingId)}
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors ml-auto"
+              >
+                Pay Now
+              </button>
+            )}
+            <a
+              href={`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/bookings/${booking.bookingId}/receipt`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-violet-400 hover:text-violet-300 transition-colors ml-auto"
+            >
+              Download Receipt
+            </a>
+          </>
         )}
       </div>
     </div>
@@ -148,6 +158,18 @@ export default function DashboardPage() {
       setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, status: 'cancelled' } : b))
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const handlePay = async (bookingId) => {
+    try {
+      const res = await bookingAPI.manualPay(bookingId)
+      if (res.data.success) {
+        setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, paymentStatus: 'paid' } : b))
+        toast.success('Payment recorded!')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Payment failed')
     }
   }
 
@@ -333,7 +355,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(b => (
-              <BookingCard key={b._id} booking={b} onCancel={handleCancel} />
+              <BookingCard key={b._id} booking={b} onCancel={handleCancel} onPay={handlePay} />
             ))}
           </div>
         )}

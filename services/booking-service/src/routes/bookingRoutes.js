@@ -23,6 +23,22 @@ router.get('/:id/receipt', require('../controllers/bookingController').generateR
 router.get('/:id', getBookingById);
 router.patch('/:id/cancel', cancelBooking);
 
+// Manual pay — user clicks "Pay Now" on dashboard for completed-but-unpaid bookings
+router.patch('/:id/manual-pay', async (req, res) => {
+  const Booking = require('../models/Booking');
+  try {
+    const booking = await Booking.findOneAndUpdate(
+      { bookingId: req.params.id, paymentStatus: { $ne: 'paid' } },
+      { paymentStatus: 'paid', paymentTransactionId: `MANUAL-${require('crypto').randomUUID().substring(0, 8).toUpperCase()}`, paymentCompletedAt: new Date() },
+      { new: true }
+    );
+    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found or already paid.' });
+    res.json({ success: true, data: booking });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Payment status update (called by payment-service)
 router.patch('/:id/payment', async (req, res) => {
   const Booking = require('../models/Booking');
