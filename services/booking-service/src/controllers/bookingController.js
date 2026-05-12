@@ -424,43 +424,49 @@ const generateReceipt = async (req, res, next) => {
     const booking = await Booking.findOne({ bookingId });
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found.' });
 
+    // Fetch user details for the receipt
+    let userName = booking.userId || 'N/A';
+    let userEmail = '';
+    let userPhone = '';
+    try {
+      const userRes = await axios.get(`${USER_SERVICE_URL}/api/auth/internal/profile/${booking.userId}`, {
+        headers: { 'x-internal-secret': INTERNAL_SECRET },
+        timeout: 10000,
+      });
+      if (userRes.data?.success && userRes.data?.user) {
+        const u = userRes.data.user;
+        userName = u.name || userName;
+        userEmail = u.email || '';
+        userPhone = u.phone || '';
+      }
+    } catch {
+      // Fallback to userId if profile fetch fails
+    }
+
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=receipt-${booking.bookingId}.pdf`);
     doc.pipe(res);
 
-    // Styled header and layout
     const { width, height } = doc.page;
-    // Outer border
     doc.save();
     doc.lineWidth(1).strokeColor('#E6EDF0').rect(20, 20, width - 40, height - 40).stroke();
 
-    // Header band
     const headerHeight = 90;
     doc.rect(20, 20, width - 40, headerHeight).fill('#0EA5A4');
 
-    // Draw a simple vector logo using PDFKit primitives (avoid svg-to-pdfkit)
-    // small rounded rect background
     doc.save();
     doc.roundedRect = function(x, y, w, h, r) { this.moveTo(x + r, y).lineTo(x + w - r, y).quadraticCurveTo(x + w, y, x + w, y + r).lineTo(x + w, y + h - r).quadraticCurveTo(x + w, y + h, x + w - r, y + h).lineTo(x + r, y + h).quadraticCurveTo(x, y + h, x, y + h - r).lineTo(x, y + r).quadraticCurveTo(x, y, x + r, y); return this; };
     doc.fillColor('#00D4FF').opacity(0.15).roundedRect(34, 30, 44, 44, 8).fill();
     doc.opacity(1).strokeColor('#00D4FF').lineWidth(1).roundedRect(34, 30, 44, 44, 8).stroke();
 
-    // 'P' path (approx)
     doc.strokeColor('#00D4FF').lineWidth(3.5).moveTo(44, 62).lineTo(44, 40).lineTo(54, 40).bezierCurveTo(58,40,62,44,62,48).stroke();
-
-    // car body
     doc.roundedRect(44, 66, 28, 8, 3).fill('#22E5FF');
     doc.moveTo(48,66).lineTo(51,60).lineTo(65,60).lineTo(68,66).fill('#22E5FF');
-
-    // wheels
     doc.circle(50, 78.5, 3).fill('#0A0F1E');
     doc.circle(66, 78.5, 3).fill('#0A0F1E');
 
-    // Title text on header
     doc.fillColor('#FFFFFF').fontSize(14).font('Helvetica-Bold').text('Smart Parking — Receipt', 110, 48);
-
-    // Company contact
     doc.fontSize(9).font('Helvetica').fillColor('#FFFFFF').text('ParkIQ — 123 Parking Ave, Suite 100', width - 260, 36, { width: 220, align: 'right' });
     doc.fontSize(9).font('Helvetica').fillColor('#FFFFFF').text('support@parkiq.com | +1 (555) 123-4567', width - 260, 52, { width: 220, align: 'right' });
 
@@ -468,10 +474,8 @@ const generateReceipt = async (req, res, next) => {
     doc.fillColor('#0F1724');
     const bodyTop = 20 + headerHeight + 20;
 
-    // Title
     doc.fontSize(16).font('Helvetica-Bold').text('Booking Receipt', 40, bodyTop);
 
-    // Booking key/value pairs (left column)
     const leftX = 40;
     let y = bodyTop + 28;
     const lineGap = 16;
@@ -480,7 +484,9 @@ const generateReceipt = async (req, res, next) => {
 
     const rows = [
       ['Booking ID', booking.bookingId],
-      ['User ID', booking.userId || 'N/A'],
+      ['Customer Name', userName],
+      ['Email', userEmail || 'N/A'],
+      ['Phone', userPhone || 'N/A'],
       ['Vehicle', booking.vehicleNumber || 'N/A'],
       ['Slot', booking.slotId || 'N/A'],
       ['Start', start],
@@ -496,7 +502,6 @@ const generateReceipt = async (req, res, next) => {
       doc.font('Helvetica');
     });
 
-    // Price box
     const price = (booking.finalPrice != null) ? booking.finalPrice : (booking.estimatedPrice != null ? booking.estimatedPrice : 0);
     const priceBoxY = bodyTop + 6;
     const priceBoxX = width - 220;
@@ -507,7 +512,6 @@ const generateReceipt = async (req, res, next) => {
     doc.fillColor('#111827').fontSize(20).font('Helvetica-Bold').text(`$${Number(price).toFixed(2)}`, priceBoxX + 12, priceBoxY + 28);
     doc.restore();
 
-    // QR Code on right if available
     if (booking.qrCode && booking.qrCode.startsWith('data:image')) {
       const matches = booking.qrCode.match(/^data:image\/(png|jpeg);base64,(.+)$/);
       if (matches && matches[2]) {
@@ -516,17 +520,12 @@ const generateReceipt = async (req, res, next) => {
           const imgX = width - 150;
           const imgY = y - (rows.length * lineGap) + 6;
           doc.image(img, imgX, imgY, { fit: [110, 110], align: 'right' });
-        } catch (err) {
-          // ignore image errors
-        }
+        } catch {}
       }
     }
 
-    // Footer
     doc.fontSize(9).fillColor('#6B7280').font('Helvetica').text('Thank you for using ParkIQ — Visit the dashboard for more details.', 40, height - 80, { width: width - 80, align: 'center' });
-
     doc.restore();
-
     doc.end();
   } catch (err) {
     next(err);

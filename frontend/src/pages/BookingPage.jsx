@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { useCarAnimation } from '../context/AnimationContext'
 import { parkingAPI, pricingAPI, bookingAPI } from '../services/api'
 import { CalendarDays, Clock, Car, Zap, CheckCircle, MapPin } from 'lucide-react'
@@ -32,6 +33,7 @@ function SlotButton({ slot, selected, onSelect }) {
 
 export default function BookingPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { triggerCarAnimation } = useCarAnimation()
   const [slots, setSlots] = useState([])
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -192,46 +194,98 @@ export default function BookingPage() {
       </div>
 
       {step === 3 && booking ? (
-        /* Confirmation */
-        <div className="max-w-lg mx-auto text-center">
-          <div className="glass-card p-10 glow-cyan">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-6 shadow-xl">
+        /* Confirmation — Ticket View */
+        <div className="max-w-xl mx-auto">
+          <div className="glass-card p-8 glow-cyan text-center mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-4 shadow-xl">
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-white font-black text-2xl mb-2">Booking Confirmed!</h2>
-            <p className="text-gray-400 mb-6">Your slot has been reserved. Show the QR code at entry.</p>
+            <h2 className="text-white font-black text-2xl mb-1">Booking Confirmed!</h2>
+            <p className="text-gray-400 text-sm mb-6">Show this ticket at entry. Keep your QR code ready.</p>
 
-            {booking.qrCode && (
-              <div className="glass-card p-4 mb-6 inline-block">
-                <img
-                  src={booking.qrCode.startsWith('data:') ? booking.qrCode : `data:image/png;base64,${booking.qrCode}`}
-                  alt="Booking QR Code"
-                  className="w-48 h-48 mx-auto rounded-xl"
-                />
-                <p className="text-gray-500 text-xs mt-2">Scan at entry gate</p>
+            {/* Ticket Card */}
+            <div className="glass-card p-5 border border-white/10 text-left mb-6">
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <p className="text-gray-500 text-xs mb-1">Booking ID</p>
+                  <p className="text-cyan-400 font-bold text-lg font-mono">{booking.bookingId}</p>
+                </div>
+                <span className="badge badge-success text-xs">Confirmed</span>
               </div>
-            )}
-            {/* Show QR token for manual entry simulation */}
-            {booking.qrToken && (
-              <div className="glass-card p-3 mb-4 text-left">
-                <p className="text-gray-500 text-xs mb-1">QR Token (for Entry/Exit simulation)</p>
-                <p className="text-cyan-400 text-xs font-mono break-all">{booking.qrToken}</p>
-              </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-3 text-sm text-left mb-6">
-              <div className="bg-white/5 rounded-xl p-3">
-                <p className="text-gray-500 text-xs mb-1">Slot</p>
-                <p className="text-white font-semibold">{selectedSlot?.slotId}</p>
-              </div>
-              <div className="bg-white/5 rounded-xl p-3">
-                <p className="text-gray-500 text-xs mb-1">Zone</p>
-                <p className="text-white font-semibold">Zone {selectedSlot?.zone}</p>
+              <div className="flex flex-col sm:flex-row gap-6">
+                {/* QR Code */}
+                <div className="flex-shrink-0 text-center">
+                  {booking.qrCode && (
+                    <div className="glass-card p-3 inline-block">
+                      <img
+                        src={booking.qrCode.startsWith('data:') ? booking.qrCode : `data:image/png;base64,${booking.qrCode}`}
+                        alt="QR"
+                        className="w-36 h-36 rounded-lg"
+                      />
+                    </div>
+                  )}
+                  {booking.qrToken && (
+                    <p className="text-gray-500 text-[10px] mt-2 font-mono max-w-[180px] break-all">Token: {booking.qrToken}</p>
+                  )}
+                </div>
+
+                {/* Details */}
+                <div className="flex-1 space-y-2.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Customer</span>
+                    <span className="text-white font-medium">{user?.name || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Contact</span>
+                    <span className="text-white font-medium">{user?.phone || user?.email || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Vehicle</span>
+                    <span className="text-white font-medium">{booking.vehicleNumber || form.vehicleNumber || 'N/A'}</span>
+                  </div>
+                  <div className="border-t border-white/5 my-1" />
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Slot</span>
+                    <span className="text-white font-medium">{selectedSlot?.slotId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Start</span>
+                    <span className="text-white font-medium">{new Date(booking.startTime).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">End</span>
+                    <span className="text-white font-medium">{new Date(booking.endTime).toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-white/5 my-1" />
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Amount</span>
+                    <span className="text-emerald-400 font-bold text-lg">${Number(booking.estimatedPrice || 0).toFixed(2)}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <button onClick={resetBooking} className="btn-primary w-full">Book Another Slot</button>
-            {/* Receipt download is available from the Dashboard only */}
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button onClick={resetBooking} className="btn-primary flex-1">Book Another Slot</button>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await bookingAPI.getReceipt(booking.bookingId)
+                    const url = URL.createObjectURL(res.data)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `receipt-${booking.bookingId}.pdf`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  } catch { toast.error('Failed to download receipt') }
+                }}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2"
+              >
+                Download Receipt
+              </button>
+            </div>
           </div>
         </div>
       ) : (
