@@ -7,7 +7,7 @@ const PDFDocument = require('pdfkit');
 
 const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL || 'http://localhost:3003';
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:3001';
-const strictPayments = process.env.REQUIRE_REAL_PAYMENTS === 'true' || process.env.NODE_ENV === 'production';
+const strictPayments = process.env.REQUIRE_REAL_PAYMENTS === 'true';
 const hasRealStripeKey = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_placeholder';
 
 const buildSyntheticPayment = (booking) => {

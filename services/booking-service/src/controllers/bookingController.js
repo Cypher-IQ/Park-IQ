@@ -286,7 +286,7 @@ const scanExit = async (req, res, next) => {
         userId: booking.userId,
         amount: Number(booking.finalPrice || 0),
         method: 'auto-exit',
-      }, { timeout: 30000 });
+      }, { timeout: 60000 });
 
       if (paymentRes?.data?.success) {
         booking.paymentStatus = 'paid';
