@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCarAnimation } from '../context/AnimationContext'
 import { parkingAPI, pricingAPI, bookingAPI } from '../services/api'
 import { CalendarDays, Clock, Car, Zap, CheckCircle, MapPin } from 'lucide-react'
@@ -30,6 +31,7 @@ function SlotButton({ slot, selected, onSelect }) {
 }
 
 export default function BookingPage() {
+  const navigate = useNavigate()
   const { triggerCarAnimation } = useCarAnimation()
   const [slots, setSlots] = useState([])
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -135,13 +137,20 @@ export default function BookingPage() {
       setBooking(res.data.data)
       toast.success('Booking confirmed! 🎉')
       triggerCarAnimation('Slot Reserved!', 1500)
-      setTimeout(() => {
-        setStep(3)
-      }, 1500)
+      setTimeout(() => setStep(3), 1500)
+      return
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Booking failed')
-    } finally {
-      setLoadingBook(false)
+      const msg = err.response?.data?.message || ''
+      const isTimeout = err.code === 'ECONNABORTED' || !err.response
+      if (isTimeout) {
+        toast.loading('Booking is still processing... Check your dashboard.', { duration: 5000 })
+        setTimeout(() => navigate('/dashboard'), 3000)
+      } else if (msg.includes('already booked')) {
+        toast.error('This slot was just booked by another user or a previous request.')
+      } else {
+        toast.error(msg || 'Booking failed')
+        setLoadingBook(false)
+      }
     }
   }
 
