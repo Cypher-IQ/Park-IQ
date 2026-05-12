@@ -214,7 +214,7 @@ export default function BookingPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6">
-                {/* QR Code */}
+                {/* QR Code + Token */}
                 <div className="flex-shrink-0 text-center">
                   {booking.qrCode && (
                     <div className="glass-card p-3 inline-block">
@@ -226,7 +226,19 @@ export default function BookingPage() {
                     </div>
                   )}
                   {booking.qrToken && (
-                    <p className="text-gray-500 text-[10px] mt-2 font-mono max-w-[180px] break-all">Token: {booking.qrToken}</p>
+                    <div className="mt-3">
+                      <p className="text-gray-500 text-xs mb-1">Entry Token</p>
+                      <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2 border border-white/10">
+                        <code className="text-cyan-400 text-xs font-mono break-all select-all">{booking.qrToken}</code>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(booking.qrToken); toast.success('Token copied!') }}
+                          className="text-gray-400 hover:text-cyan-400 transition-colors flex-shrink-0"
+                          title="Copy token"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" strokeWidth="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth="2"/></svg>
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
 
