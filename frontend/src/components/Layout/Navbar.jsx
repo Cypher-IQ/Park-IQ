@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
   LayoutDashboard, CalendarDays, QrCode, Settings,
-  LogOut, Menu, X, ChevronRight, User, Sparkles, MessageCircle
+  LogOut, Menu, X, ChevronRight, User, Sparkles, MessageCircle, Sliders
 } from 'lucide-react'
 import ParkIQLogo from '../Logo'
 
@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Book Slot',   path: '/booking',    icon: CalendarDays,    auth: true },
   { label: 'Entry / Exit',path: '/entry-exit', icon: QrCode,          auth: true },
   { label: 'Support',     path: '/support',    icon: MessageCircle,   auth: true },
+  { label: 'Settings',    path: '/settings',   icon: Sliders,         auth: true },
   { label: 'Admin Panel', path: '/admin',      icon: Settings,        adminOnly: true },
 ]
 
@@ -84,7 +85,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 {/* User pill */}
-                <div className="flex items-center gap-2.5 glass-card px-3.5 py-2 border-white/10">
+                <Link to="/settings" className="flex items-center gap-2.5 glass-card px-3.5 py-2 border-white/10 hover:border-cyan-500/30 transition-all">
                   <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/30">
                     <User className="w-3.5 h-3.5 text-white" />
                   </div>
@@ -94,7 +95,7 @@ export default function Navbar() {
                       <span className="text-[10px] text-violet-400 font-medium tracking-wider uppercase">Admin</span>
                     )}
                   </div>
-                </div>
+                </Link>
 
                 <button
                   onClick={handleLogout}

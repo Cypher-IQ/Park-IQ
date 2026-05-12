@@ -15,6 +15,7 @@ import SupportPage from './pages/SupportPage'
 import DashboardPage from './pages/DashboardPage'
 import BookingPage from './pages/BookingPage'
 import EntryExitPage from './pages/EntryExitPage'
+import SettingsPage from './pages/SettingsPage'
 import AdminPage from './pages/AdminPage'
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -53,6 +54,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
           <Route path="/entry-exit" element={<ProtectedRoute><EntryExitPage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
