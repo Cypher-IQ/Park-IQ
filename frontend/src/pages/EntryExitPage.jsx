@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { bookingAPI } from '../services/api'
-import { QrCode, LogIn, LogOut, AlertCircle, Clock, Car, Zap } from 'lucide-react'
+import { QrCode, LogIn, LogOut, AlertCircle, Clock, Car, Zap, Camera, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 function ResultCard({ data, type }) {
@@ -64,6 +64,56 @@ function ResultCard({ data, type }) {
   )
 }
 
+function QrScanner({ onScan, onClose }) {
+  const scannerRef = useRef(null)
+  const containerRef = useRef(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let scanner
+    const start = async () => {
+      try {
+        const { Html5Qrcode } = await import('html5-qrcode')
+        scanner = new Html5Qrcode('qr-reader')
+        scannerRef.current = scanner
+        await scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            onScan(decodedText)
+            scanner.stop().catch(() => {})
+          },
+          () => {}
+        )
+      } catch {
+        setError('Camera access denied. Use manual input instead.')
+      }
+    }
+    start()
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {})
+      }
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+      <div className="bg-gray-900 rounded-2xl p-4 w-full max-w-md relative">
+        <button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-white z-10">
+          <X className="w-6 h-6" />
+        </button>
+        <p className="text-white font-semibold text-center mb-3">Scan QR Code</p>
+        {error ? (
+          <p className="text-red-400 text-sm text-center p-8">{error}</p>
+        ) : (
+          <div id="qr-reader" ref={containerRef} className="w-full [&_video]:rounded-xl" />
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function EntryExitPage() {
   const [entryQR, setEntryQR] = useState('')
   const [exitQR, setExitQR] = useState('')
@@ -72,9 +122,10 @@ export default function EntryExitPage() {
   const [loadingEntry, setLoadingEntry] = useState(false)
   const [loadingExit, setLoadingExit] = useState(false)
   const [activeTab, setActiveTab] = useState('entry')
+  const [showScanner, setShowScanner] = useState(false)
 
   const handleEntry = async () => {
-    if (!entryQR.trim()) return toast.error('Please enter a QR code')
+    if (!entryQR.trim()) return toast.error('Please enter or scan a QR code')
     setLoadingEntry(true)
     setEntryResult(null)
     try {
@@ -89,7 +140,7 @@ export default function EntryExitPage() {
   }
 
   const handleExit = async () => {
-    if (!exitQR.trim()) return toast.error('Please enter a QR code')
+    if (!exitQR.trim()) return toast.error('Please enter or scan a QR code')
     setLoadingExit(true)
     setExitResult(null)
     try {
@@ -101,6 +152,15 @@ export default function EntryExitPage() {
     } finally {
       setLoadingExit(false)
     }
+  }
+
+  const handleQrScan = (data) => {
+    if (activeTab === 'entry') {
+      setEntryQR(data)
+    } else {
+      setExitQR(data)
+    }
+    setShowScanner(false)
   }
 
   return (
@@ -160,21 +220,29 @@ export default function EntryExitPage() {
                   className="input-field resize-none text-sm font-mono"
                 />
               </div>
-              <button
-                id="entry-submit-btn"
-                onClick={handleEntry}
-                disabled={loadingEntry}
-                className="btn-primary flex items-center justify-center gap-2"
-              >
-                {loadingEntry ? (
-                  <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                ) : (
-                  <><LogIn className="w-5 h-5" /> Confirm Entry</>
-                )}
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowScanner(true)}
+                  className="btn-secondary flex items-center justify-center gap-2 px-4"
+                >
+                  <Camera className="w-5 h-5" /> Scan
+                </button>
+                <button
+                  id="entry-submit-btn"
+                  onClick={handleEntry}
+                  disabled={loadingEntry}
+                  className="btn-primary flex items-center justify-center gap-2 flex-1"
+                >
+                  {loadingEntry ? (
+                    <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <><LogIn className="w-5 h-5" /> Confirm Entry</>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
           <ResultCard data={entryResult} type="entry" />
@@ -209,26 +277,37 @@ export default function EntryExitPage() {
                   className="input-field resize-none text-sm font-mono"
                 />
               </div>
-              <button
-                id="exit-submit-btn"
-                onClick={handleExit}
-                disabled={loadingExit}
-                className="bg-gradient-to-r from-violet-600 to-purple-700 text-white font-semibold px-6 py-3 rounded-xl flex items-center justify-center gap-2 hover:from-violet-500 hover:to-purple-600 transition-all shadow-lg shadow-violet-500/25"
-              >
-                {loadingExit ? (
-                  <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                ) : (
-                  <><LogOut className="w-5 h-5" /> Process Exit & Pay</>
-                )}
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowScanner(true)}
+                  className="btn-secondary flex items-center justify-center gap-2 px-4"
+                >
+                  <Camera className="w-5 h-5" /> Scan
+                </button>
+                <button
+                  id="exit-submit-btn"
+                  onClick={handleExit}
+                  disabled={loadingExit}
+                  className="bg-gradient-to-r from-violet-600 to-purple-700 text-white font-semibold px-6 py-3 rounded-xl flex items-center justify-center gap-2 flex-1 hover:from-violet-500 hover:to-purple-600 transition-all shadow-lg shadow-violet-500/25"
+                >
+                  {loadingExit ? (
+                    <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <><LogOut className="w-5 h-5" /> Process Exit & Pay</>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
           <ResultCard data={exitResult} type="exit" />
         </div>
       )}
+
+      {/* QR Scanner Modal */}
+      {showScanner && <QrScanner onScan={handleQrScan} onClose={() => setShowScanner(false)} />}
 
       {/* Info box */}
       <div className="mt-6 glass-card p-5 flex gap-3">
@@ -237,7 +316,7 @@ export default function EntryExitPage() {
           <p className="font-medium text-gray-200 mb-1">How it works</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
             <li>After booking, you receive a unique QR code in your dashboard.</li>
-            <li>Paste the QR code value to record your vehicle's entry — slot status becomes <span className="text-red-400">Occupied</span>.</li>
+            <li>Paste the QR code value or use the <strong>Scan</strong> button to record your vehicle's entry.</li>
             <li>On exit, duration is calculated and payment is automatically processed.</li>
             <li>Your slot then becomes <span className="text-emerald-400">Available</span> again.</li>
           </ul>
