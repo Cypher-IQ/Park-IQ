@@ -277,26 +277,25 @@ const scanExit = async (req, res, next) => {
     }
 
     booking.status = 'completed';
+    booking.paymentStatus = 'paid';
+    booking.paymentCompletedAt = new Date();
+    booking.paymentTransactionId = `AUTO-${crypto.randomUUID().substring(0, 8).toUpperCase()}`;
     await booking.save();
 
-    // Auto-create a payment record so completed fare appears in payment dashboards.
-    try {
-      const paymentRes = await axios.post(`${PAYMENT_SERVICE_URL}/api/payments/initiate`, {
-        bookingId: booking.bookingId,
-        userId: booking.userId,
-        amount: Number(booking.finalPrice || 0),
-        method: 'auto-exit',
-      }, { timeout: 60000 });
-
+    // Best-effort: notify payment service for admin reporting (don't block on cold start)
+    axios.post(`${PAYMENT_SERVICE_URL}/api/payments/initiate`, {
+      bookingId: booking.bookingId,
+      userId: booking.userId,
+      amount: Number(booking.finalPrice || 0),
+      method: 'auto-exit',
+    }, { timeout: 30000 }).then(paymentRes => {
       if (paymentRes?.data?.success) {
-        booking.paymentStatus = 'paid';
         booking.paymentTransactionId = paymentRes.data.data?.transactionId || booking.paymentTransactionId;
-        booking.paymentCompletedAt = paymentRes.data.data?.paidAt || new Date();
-        await booking.save();
+        booking.save().catch(() => {});
       }
-    } catch (err) {
-      console.error('[BookingService] Auto payment creation failed:', err.message);
-    }
+    }).catch(err => {
+      console.error('[BookingService] Payment service notification failed:', err.message);
+    });
 
     // Free up parking slot
     await axios.patch(`${PARKING_SERVICE_URL}/api/parking/slots/${booking.slotId}/status`, {
