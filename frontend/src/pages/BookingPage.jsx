@@ -56,7 +56,7 @@ export default function BookingPage() {
     startTime: defaults.timeStr, 
     endDate: defaults.endDateStr, 
     endTime: defaults.endTimeStr, 
-    vehicleNumber: '' 
+    vehicleNumber: user?.vehicleNumber || '' 
   })
 
   const getFullDateTime = (d, t) => {
@@ -160,7 +160,7 @@ export default function BookingPage() {
     setStep(1)
     setSelectedSlot(null)
     const defaults = getLocalNow()
-    setForm({ startDate: defaults.dateStr, startTime: defaults.timeStr, endDate: defaults.endDateStr, endTime: defaults.endTimeStr, vehicleNumber: '' })
+    setForm({ startDate: defaults.dateStr, startTime: defaults.timeStr, endDate: defaults.endDateStr, endTime: defaults.endTimeStr, vehicleNumber: user?.vehicleNumber || '' })
     setPricePreview(null)
     setBooking(null)
     fetchSlots(selectedZone)

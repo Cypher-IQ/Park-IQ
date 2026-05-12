@@ -47,6 +47,12 @@ function BookingCard({ booking, onCancel }) {
           <p className="text-gray-500 mb-1 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> End</p>
           <p className="text-gray-200">{formatDate(booking.endTime)}</p>
         </div>
+        {booking.vehicleNumber && (
+          <div className="bg-white/5 rounded-lg p-3 col-span-2">
+            <p className="text-gray-500 mb-1 flex items-center gap-1"><Car className="w-3.5 h-3.5" /> Vehicle</p>
+            <p className="text-gray-200 font-medium">{booking.vehicleNumber}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between">
