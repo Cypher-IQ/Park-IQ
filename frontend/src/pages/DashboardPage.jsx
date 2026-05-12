@@ -66,16 +66,30 @@ function BookingCard({ booking, onCancel }) {
             </p>
           )}
         </div>
-        {booking.qrCode && (
-          <div className="mt-2 flex flex-col items-center p-2 bg-white/5 rounded-xl border border-white/10">
-            <img 
-              src={booking.qrCode.startsWith('data:') ? booking.qrCode : `data:image/png;base64,${booking.qrCode}`}
-              alt="QR Code"
-              className="w-20 h-20 rounded-md shadow-lg bg-white p-1"
-            />
-            <span className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">Scan at Gate</span>
-          </div>
-        )}
+        <div className="flex flex-col items-center gap-1">
+          {booking.qrCode && (
+            <div className="flex flex-col items-center p-2 bg-white/5 rounded-xl border border-white/10">
+              <img 
+                src={booking.qrCode.startsWith('data:') ? booking.qrCode : `data:image/png;base64,${booking.qrCode}`}
+                alt="QR Code"
+                className="w-20 h-20 rounded-md shadow-lg bg-white p-1"
+              />
+              <span className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">Scan at Gate</span>
+            </div>
+          )}
+          {booking.qrToken && (
+            <div className="flex items-center gap-1 max-w-[160px] bg-white/5 rounded-lg px-2 py-1 border border-white/5">
+              <code className="text-[9px] text-cyan-400/80 font-mono truncate">{booking.qrToken}</code>
+              <button
+                onClick={() => { navigator.clipboard.writeText(booking.qrToken); toast.success('Token copied!') }}
+                className="text-gray-500 hover:text-cyan-400 transition-colors flex-shrink-0"
+                title="Copy token"
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" strokeWidth="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth="2"/></svg>
+              </button>
+            </div>
+          )}
+        </div>
         {['pending', 'confirmed'].includes(booking.status) && (
           <button
             onClick={() => onCancel(booking.bookingId)}
