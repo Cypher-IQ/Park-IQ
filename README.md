@@ -1,6 +1,8 @@
 # 🚗 ParkIQ
 
 > **Intelligent Parking Management System** | AI-Powered Microservices | Full-Stack Demo
+>
+> 🔗 **Live Demo:** [smart-park-iq.vercel.app](https://smart-park-iq.vercel.app) *(first load may take 30-60s due to free-tier cold starts)*
 
 **ParkIQ** is a production-ready parking management platform showcasing modern full-stack architecture with microservices, real-time booking, and payment integration.
 
