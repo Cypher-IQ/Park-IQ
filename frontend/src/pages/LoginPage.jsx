@@ -221,9 +221,17 @@ export default function LoginPage() {
               <Users className="w-4 h-4" /> Facebook
             </button>
           </div>
+          </div>
+
+        {/* Admin demo credentials */}
+        <div className="mt-5 glass-card p-4">
+          <p className="text-xs text-gray-500 text-center mb-3 font-medium uppercase tracking-wide">Admin Demo</p>
+          <div className="bg-white/5 rounded-lg p-3 text-xs text-center">
+            <p className="text-violet-400 font-semibold mb-1">Admin</p>
+            <p className="text-gray-400">admin@demo.com</p>
+            <p className="text-gray-400">admin1234</p>
+          </div>
         </div>
-
-
       </div>
     </div>
   )
