@@ -61,7 +61,7 @@ const broadcastParkingUpdate = async (payload) => {
   try {
     await axios.post(`${GATEWAY_URL}/api/realtime/broadcast`, payload, {
       headers: { 'x-internal-secret': INTERNAL_SECRET },
-      timeout: 5000,
+      timeout: 30000,
     });
   } catch {
     // Best-effort real-time update

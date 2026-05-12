@@ -20,7 +20,7 @@ const broadcastBookingEvent = async (event, payload) => {
   try {
     await axios.post(`${GATEWAY_URL}/api/realtime/broadcast`, { event, payload }, {
       headers: { 'x-internal-secret': INTERNAL_SECRET },
-      timeout: 5000,
+      timeout: 15000,
     });
   } catch {
     // Best-effort only
@@ -42,7 +42,7 @@ const getEstimatedPrice = async (slotId, startTime, endTime) => {
   try {
     const response = await axios.post(`${PRICING_SERVICE_URL}/api/pricing/calculate`, {
       slotId, startTime, endTime,
-    }, { timeout: 5000 });
+    }, { timeout: 30000 });
     return response.data.data.totalPrice || 0;
   } catch {
     return 0; // Graceful degradation
@@ -74,7 +74,7 @@ const createBooking = async (req, res, next) => {
     // Check slot availability from parking-service
     let slotData;
     try {
-      const slotRes = await axios.get(`${PARKING_SERVICE_URL}/api/parking/slots/${slotId}`, { timeout: 5000 });
+      const slotRes = await axios.get(`${PARKING_SERVICE_URL}/api/parking/slots/${slotId}`, { timeout: 30000 });
       slotData = slotRes.data.data;
     } catch (err) {
       return res.status(400).json({ success: false, message: 'Failed to verify slot. Slot may not exist.' });
@@ -113,7 +113,7 @@ const createBooking = async (req, res, next) => {
     await axios.patch(`${PARKING_SERVICE_URL}/api/parking/slots/${slotId}/status`, {
       status: 'reserved',
       bookingId,
-    }, { timeout: 5000 }).catch(() => {});
+    }, { timeout: 30000 }).catch(() => {});
 
     // Create booking in DB
     if (!isDbConnected()) return dbUnavailableResponse(res);
@@ -225,7 +225,7 @@ const scanEntry = async (req, res, next) => {
     // Update slot to occupied
     await axios.patch(`${PARKING_SERVICE_URL}/api/parking/slots/${booking.slotId}/status`, {
       status: 'occupied', bookingId: booking.bookingId,
-    }, { timeout: 5000 }).catch(() => {});
+    }, { timeout: 30000 }).catch(() => {});
 
     res.json({
       success: true,
@@ -270,7 +270,7 @@ const scanExit = async (req, res, next) => {
         startTime: booking.entryTime,
         endTime: now,
         durationMinutes: booking.durationMinutes,
-      }, { timeout: 5000 });
+      }, { timeout: 30000 });
       booking.finalPrice = priceRes.data.data.totalPrice || booking.estimatedPrice;
     } catch {
       booking.finalPrice = booking.estimatedPrice;
@@ -286,7 +286,7 @@ const scanExit = async (req, res, next) => {
         userId: booking.userId,
         amount: Number(booking.finalPrice || 0),
         method: 'auto-exit',
-      }, { timeout: 5000 });
+      }, { timeout: 30000 });
 
       if (paymentRes?.data?.success) {
         booking.paymentStatus = 'paid';
@@ -301,7 +301,7 @@ const scanExit = async (req, res, next) => {
     // Free up parking slot
     await axios.patch(`${PARKING_SERVICE_URL}/api/parking/slots/${booking.slotId}/status`, {
       status: 'available', bookingId: null,
-    }, { timeout: 5000 }).catch(() => {});
+    }, { timeout: 30000 }).catch(() => {});
 
     res.json({
       success: true,
@@ -348,7 +348,7 @@ const cancelBooking = async (req, res, next) => {
     if (['confirmed', 'pending', 'active'].includes(prevStatus)) {
       await axios.patch(`${PARKING_SERVICE_URL}/api/parking/slots/${booking.slotId}/status`, {
         status: 'available', bookingId: null,
-      }, { timeout: 5000 }).catch(() => {});
+    }, { timeout: 30000 }).catch(() => {});
     }
 
     broadcastBookingEvent('booking:update', {

@@ -14,7 +14,7 @@ const PARKING_SERVICE_URL = process.env.PARKING_SERVICE_URL || 'http://localhost
 // Helper: fetch occupancy from parking-service
 const fetchOccupancy = async () => {
   try {
-    const res = await axios.get(`${PARKING_SERVICE_URL}/api/parking/stats`, { timeout: 5000 });
+    const res = await axios.get(`${PARKING_SERVICE_URL}/api/parking/stats`, { timeout: 30000 });
     return res.data.data;
   } catch {
     // Default if parking-service is down

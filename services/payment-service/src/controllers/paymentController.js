@@ -33,7 +33,7 @@ const fetchCompletedBookings = async (userId = null) => {
     const url = userId
       ? `${BOOKING_SERVICE_URL}/api/bookings?userId=${encodeURIComponent(userId)}&status=completed&page=1&limit=100`
       : `${BOOKING_SERVICE_URL}/api/bookings/admin/all?status=completed&page=1&limit=100`;
-    const res = await axios.get(url, { timeout: 5000 });
+    const res = await axios.get(url, { timeout: 30000 });
     return res.data?.data || [];
   } catch (err) {
     console.error('[PaymentService] Failed to fetch booking fallback data:', err.message);
@@ -128,7 +128,7 @@ const initiatePayment = async (req, res, next) => {
         await axios.patch(
           `${BOOKING_SERVICE_URL}/api/bookings/${bookingId}/payment`,
           { paymentStatus: 'paid', transactionId },
-          { timeout: 5000 }
+          { timeout: 30000 }
         );
       } catch (err) {
         console.error('[PaymentService] Failed to notify booking service:', err.message);
@@ -138,7 +138,7 @@ const initiatePayment = async (req, res, next) => {
       try {
         const userRes = await axios.get(`${USER_SERVICE_URL}/api/auth/internal/profile/${userId}`, {
           headers: { 'x-internal-secret': process.env.INTERNAL_API_SECRET || 'parkiq-internal-secret' },
-          timeout: 5000,
+          timeout: 30000,
         });
         if (userRes.data.user && userRes.data.user.email) {
           await sendPaymentReceipt(userRes.data.user.email, {
