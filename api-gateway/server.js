@@ -24,27 +24,7 @@ const services = {
 // Security
 app.use(helmet());
 app.use(cors({
-  origin: function (origin, callback) {
-    try {
-      if (!origin) return callback(null, true);
-
-      // Allow localhost (any port) for local dev
-      if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return callback(null, true);
-
-      // Allow configured origins + wildcard
-      const allowed = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()) : [];
-      if (allowed.includes('*') || allowed.includes(origin)) return callback(null, true);
-
-      // Accept any valid HTTPS origin when no explicit allowlist is set
-      if (!process.env.ALLOWED_ORIGINS && origin.startsWith('https://')) return callback(null, true);
-
-      console.warn('[CORS] Rejecting origin:', origin, 'Allowed:', allowed);
-      return callback(null, false);
-    } catch (err) {
-      console.error('[CORS] Origin check error:', err);
-      return callback(null, false);
-    }
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-role'],
@@ -55,17 +35,7 @@ if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 
 const io = new Server(server, {
   cors: {
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return callback(null, true);
-
-      const allowed = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
-      if (allowed.indexOf('*') !== -1 || allowed.indexOf(origin) !== -1) return callback(null, true);
-
-      if (!process.env.ALLOWED_ORIGINS && origin.startsWith('https://')) return callback(null, true);
-
-      callback(new Error('Not allowed by CORS'));
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST'],
   },
