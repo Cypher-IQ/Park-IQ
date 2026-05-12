@@ -11,7 +11,45 @@ const PORT = process.env.PORT || 3002;
 
 // Connect to MongoDB
 const connectDB = require('./src/config/db');
-connectDB();
+
+const seedIfEmpty = async () => {
+  const Slot = require('./src/models/Slot');
+  const count = await Slot.countDocuments();
+  if (count > 0) {
+    console.log(`[parking-service] ${count} slots already exist, skipping seed.`);
+    return;
+  }
+  const zones = ['A', 'B', 'C', 'D', 'E'];
+  const types = ['standard', 'standard', 'standard', 'compact', 'ev-charging', 'handicapped'];
+  const slots = [];
+  zones.forEach((zone) => {
+    for (let level = 1; level <= 2; level++) {
+      for (let num = 1; num <= 10; num++) {
+        const slotId = `${zone}${level}${String(num).padStart(2, '0')}`;
+        slots.push({
+          slotId, zone, level, slotNumber: num,
+          type: types[Math.floor(Math.random() * types.length)],
+          status: 'available',
+          location: {
+            lat: 12.9716 + (Math.random() * 0.01 - 0.005),
+            lng: 77.5946 + (Math.random() * 0.01 - 0.005),
+            description: `Zone ${zone}, Level ${level}, Slot ${num}`,
+          },
+          features: { covered: level > 1, cctv: true },
+        });
+      }
+    }
+  });
+  await Slot.insertMany(slots);
+  console.log(`[parking-service] ✅ Auto-seeded ${slots.length} parking slots.`);
+};
+
+(async () => {
+  await connectDB();
+  if (mongoose.connection.readyState === 1) {
+    await seedIfEmpty();
+  }
+})();
 
 app.use(helmet());
 app.use(cors());
