@@ -1,14 +1,14 @@
-# 🚗 ParkIQ
+# ParkIQ
 
 > **Intelligent Parking Management System** | AI-Powered Microservices | Full-Stack Demo
 >
-> 🔗 **Live Demo:** [smart-park-iq.vercel.app](https://smart-park-iq.vercel.app) *(first load may take 30-60s due to free-tier cold starts)*
+> **Live Demo:** [smart-park-iq.vercel.app](https://smart-park-iq.vercel.app) *(first load may take 30-60s due to free-tier cold starts)*
 
 **ParkIQ** is a production-ready parking management platform showcasing modern full-stack architecture with microservices, real-time booking, and payment integration.
 
 ---
 
-## 🎖 Tech Stack & Badges
+## Tech Stack & Badges
 
 ![Node.js](https://img.shields.io/badge/Node.js-v20%2B-339933?style=for-the-badge&logo=node.js)
 ![Express](https://img.shields.io/badge/Express-Backend-90C53F?style=for-the-badge&logo=express)
@@ -23,7 +23,7 @@
 ![Status](https://img.shields.io/badge/Status-Production--Ready-brightgreen?style=for-the-badge)
 ![Microservices](https://img.shields.io/badge/Architecture-Microservices-FF6B6B?style=for-the-badge)
 
-## 📋 Overview
+## Overview
 
 ParkIQ is a **microservices-based parking platform** that handles user authentication, slot management, booking, pricing, and payments. The frontend is a Vite React app and the backend is split into an API gateway plus dedicated services. Designed to be scalable, maintainable, and production-ready.
 
